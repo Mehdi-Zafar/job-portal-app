@@ -1,0 +1,48 @@
+<div class="relative flex flex-col items-center justify-center py-8 gap-4 min-h-screen">
+  <a routerLink="/">
+    <img src="/images/logo.webp" class="w-36 absolute top-8 left-8" />
+  </a>
+  <!-- <div> -->
+  <h1 class="text-4xl font-semibold text-center text-primary">Sign In</h1>
+  <div class="w-full max-w-sm">
+    <form class="pt-8 pb-10 mb-4" [formGroup]="signInForm" (ngSubmit)="onFormSubmit()">
+      <div class="mb-4">
+        <label class="label" for="email"> Email </label>
+        <input class="input" id="email" type="text" placeholder="Email" formControlName="email" />
+        @if (email?.invalid && (email?.touched || email?.dirty)) { @if(email?.errors?.['required']){
+        <p class="error">Email is required!</p>
+        } @if(signInForm.controls.email.errors?.['email']){
+        <p class="error">Invalid Email!</p>
+        } }
+      </div>
+      <div class="">
+        <label class="label" for="password"> Password </label>
+        <input
+          class="input"
+          id="password"
+          type="password"
+          placeholder="******************"
+          formControlName="password"
+        />
+        @if (password?.invalid && (password?.touched || password?.dirty)) {
+        @if(password?.errors?.['required']){
+        <p class="error">Password is required!</p>
+        } }
+      </div>
+      <a class="align-baseline font-medium text-xs text-primary mt-2 text-right block" href="#">
+        Forgot Password?
+      </a>
+      <div class="flex items-center justify-between mt-4">
+        <button class="button w-full" type="submit" [disabled]="!!signInForm.invalid">
+          Sign In
+        </button>
+      </div>
+    </form>
+    <h5 class="text-sm text-center">
+      Not a member? <a routerLink="/sign-up" class="underline">Sign Up</a>
+    </h5>
+  </div>
+  <!-- </div> -->
+</div>
+
+{{ signInForm.value | json }}

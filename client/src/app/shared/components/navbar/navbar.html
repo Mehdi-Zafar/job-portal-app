@@ -1,0 +1,51 @@
+<nav class="py-5 px-8 flex justify-between items-center shadow-sm">
+  <div><img src="/images/logo.webp" alt="" class="w-36" /></div>
+  <div class="flex-1 flex justify-center">
+    <ul class="flex gap-8">
+      <li>
+        <a
+          routerLink="/"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Home
+        </a>
+      </li>
+      <li>
+        <a
+          routerLink="/find-jobs"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Find Jobs
+        </a>
+      </li>
+      <li>
+        <a
+          routerLink="/post-job"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Post Job
+        </a>
+      </li>
+      <li>
+        <a
+          routerLink="/about"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          About
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="flex items-center gap-2">
+    <a routerLink="/contact">
+      <button class="outline-button">Contact Us</button>
+    </a>
+    <a routerLink="/sign-in">
+      <button class="button">Sign In</button>
+    </a>
+  </div>
+</nav>

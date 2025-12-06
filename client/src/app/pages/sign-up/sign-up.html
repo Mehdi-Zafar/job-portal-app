@@ -1,0 +1,86 @@
+<div class="relative flex flex-col items-center justify-center py-8 gap-4 min-h-screen">
+  <a routerLink="/">
+    <img src="/images/logo.webp" class="w-36 absolute top-8 left-8" />
+  </a>
+  <h1 class="text-4xl font-semibold text-center text-primary">Sign Up</h1>
+  <div class="w-full max-w-sm">
+    <form class="pt-8 pb-10 mb-4" [formGroup]="signUpForm" (ngSubmit)="onFormSubmit()">
+      <div class="mb-4">
+        <div class="mb-4">
+          <label class="label" for="username"> Username </label>
+          <input
+            class="input"
+            id="username"
+            type="text"
+            placeholder="Username"
+            formControlName="username"
+          />
+          @if (username?.invalid && (username?.touched || username?.dirty)) {
+          @if(username?.errors?.['required']){
+          <p class="error">Username is required!</p>
+          } @if(username?.errors?.['minlength']){
+          <p class="error">Username should be min 5 characters!</p>
+          } }
+        </div>
+        <label class="label" for="email"> Email </label>
+        <input class="input" id="email" type="text" placeholder="Email" formControlName="email" />
+        @if (email?.invalid && (email?.touched || email?.dirty)) { @if(email?.errors?.['required']){
+        <p class="error">Email is required!</p>
+        } @if(email?.errors?.['email']){
+        <p class="error">Invalid Email!</p>
+        } }
+      </div>
+      <div class="mb-6">
+        <label class="label" for="password"> Password </label>
+        <input
+          class="input"
+          id="password"
+          type="password"
+          placeholder="******************"
+          formControlName="password"
+        />
+        @if (password?.invalid && (password?.touched || password?.dirty)) {
+        @if(password?.errors?.['required']){
+        <p class="error">Password is required!</p>
+        } @if(password?.errors?.['minLength']){
+
+        <p class="error">Password must be at least 8 characters long.</p>
+        } @else if(password?.errors?.['noLetter']){
+
+        <p class="error">Password must contain at least one letter.</p>
+        } @else if(password?.errors?.['noNumber']){
+
+        <p class="error">Password must contain at least one number.</p>
+        } @else if(password?.errors?.['noSpecialChar']){
+
+        <p class="error">Password must contain at least one special character.</p>
+        } }
+      </div>
+      <div class="mb-6">
+        <label class="label" for="confirmPassword"> Confirm Password </label>
+        <input
+          class="input"
+          id="confirmPassword"
+          type="password"
+          placeholder="******************"
+          formControlName="confirmPassword"
+        />
+        @if ((confirmPassword?.invalid || signUpForm.errors?.['passwordMismatch']) &&
+        (confirmPassword?.touched || confirmPassword?.dirty)) {
+        @if(confirmPassword?.errors?.['required']){
+        <p class="error">Confirm Password is required!</p>
+        } @else if(signUpForm.errors?.['passwordMismatch']){
+        <p class="error">Passwords do not match!</p>
+        } }
+      </div>
+      <div class="flex items-center justify-between">
+        <button class="button w-full" type="submit" [disabled]="!!signUpForm.invalid">
+          Sign In
+        </button>
+      </div>
+    </form>
+    <h5 class="text-sm text-center">
+      Already a member? <a routerLink="/sign-in" class="underline">Sign In</a>
+    </h5>
+  </div>
+</div>
