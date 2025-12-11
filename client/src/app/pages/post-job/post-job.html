@@ -1,3 +1,864 @@
-<div>
-    
+<!-- post-job.component.html -->
+<div class="max-w-5xl mx-auto p-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Post a New Job</h1>
+    <p class="text-gray-600">Fill in the details below to create your job posting</p>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      @for(step of [1, 2, 3, 4, 5, 6]; track step) {
+        <div class="flex items-center" [class.flex-1]="step < 6">
+          <button
+            type="button"
+            (click)="goToStep(step)"
+            class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all"
+            [class.bg-primary]="getStepStatus(step) === 'completed' || getStepStatus(step) === 'current'"
+            [class.border-primary]="getStepStatus(step) === 'completed' || getStepStatus(step) === 'current'"
+            [class.text-white]="getStepStatus(step) === 'completed' || getStepStatus(step) === 'current'"
+            [class.border-gray-300]="getStepStatus(step) === 'upcoming'"
+            [class.text-gray-400]="getStepStatus(step) === 'upcoming'"
+          >
+            @if(getStepStatus(step) === 'completed') {
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            } @else {
+              <span>{{ step }}</span>
+            }
+          </button>
+          @if(step < 6) {
+            <div class="flex-1 h-1 mx-2"
+              [class.bg-primary]="step < currentStep"
+              [class.bg-gray-300]="step >= currentStep">
+            </div>
+          }
+        </div>
+      }
+    </div>
+    <div class="flex justify-between mt-2">
+      <span class="text-xs text-gray-600">Basic Info</span>
+      <span class="text-xs text-gray-600">Description</span>
+      <span class="text-xs text-gray-600">Qualifications</span>
+      <span class="text-xs text-gray-600">Compensation</span>
+      <span class="text-xs text-gray-600">Application</span>
+      <span class="text-xs text-gray-600">Preview</span>
+    </div>
+  </div>
+
+  <form [formGroup]="jobForm">
+    <!-- Step 1: Basic Information -->
+    @if(currentStep === 1) {
+      <div class="bg-white rounded-lg shadow-md p-6" formGroupName="basicInfo">
+        <h2 class="text-2xl font-semibold mb-6">Basic Information</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Job Title -->
+          <div class="md:col-span-2">
+            <label class="label">Job Title *</label>
+            <input
+              type="text"
+              class="input"
+              formControlName="jobTitle"
+              placeholder="e.g., Senior Software Engineer"
+            />
+            @if(jobForm.get('basicInfo.jobTitle')?.invalid && jobForm.get('basicInfo.jobTitle')?.touched) {
+              <p class="error">Job title is required (min 5 characters)</p>
+            }
+          </div>
+
+          <!-- Employment Type -->
+          <div>
+            <label class="label">Employment Type *</label>
+            <select class="input" formControlName="employmentType">
+              <option value="">Select type</option>
+              @for(type of employmentTypes; track type.value) {
+                <option [value]="type.value">{{ type.label }}</option>
+              }
+            </select>
+            @if(jobForm.get('basicInfo.employmentType')?.invalid && jobForm.get('basicInfo.employmentType')?.touched) {
+              <p class="error">Employment type is required</p>
+            }
+          </div>
+
+          <!-- Workplace Type -->
+          <div>
+            <label class="label">Workplace Type *</label>
+            <select class="input" formControlName="workplaceType">
+              <option value="">Select type</option>
+              @for(type of workplaceTypes; track type.value) {
+                <option [value]="type.value">{{ type.label }}</option>
+              }
+            </select>
+            @if(jobForm.get('basicInfo.workplaceType')?.invalid && jobForm.get('basicInfo.workplaceType')?.touched) {
+              <p class="error">Workplace type is required</p>
+            }
+          </div>
+
+          <!-- Location -->
+          <div>
+            <label class="label">Location *</label>
+            <input
+              type="text"
+              class="input"
+              formControlName="location"
+              placeholder="e.g., San Francisco, CA"
+              [disabled]="jobForm.get('basicInfo.workplaceType')?.value === 'remote'"
+            />
+            @if(jobForm.get('basicInfo.location')?.invalid && jobForm.get('basicInfo.location')?.touched) {
+              <p class="error">Location is required</p>
+            }
+          </div>
+
+          <!-- Department -->
+          <div>
+            <label class="label">Department *</label>
+            <select class="input" formControlName="department">
+              <option value="">Select department</option>
+              @for(dept of departments; track dept.value) {
+                <option [value]="dept.value">{{ dept.label }}</option>
+              }
+            </select>
+            @if(jobForm.get('basicInfo.department')?.invalid && jobForm.get('basicInfo.department')?.touched) {
+              <p class="error">Department is required</p>
+            }
+          </div>
+
+          <!-- Number of Openings -->
+          <div class="md:col-span-2">
+            <label class="label">Number of Openings *</label>
+            <input
+              type="number"
+              class="input"
+              formControlName="numberOfOpenings"
+              min="1"
+            />
+            @if(jobForm.get('basicInfo.numberOfOpenings')?.invalid && jobForm.get('basicInfo.numberOfOpenings')?.touched) {
+              <p class="error">Number of openings must be at least 1</p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 2: Job Description -->
+    @if(currentStep === 2) {
+      <div class="bg-white rounded-lg shadow-md p-6" formGroupName="description">
+        <h2 class="text-2xl font-semibold mb-6">Job Description</h2>
+
+        <!-- Job Summary -->
+        <div class="mb-6">
+          <label class="label">Job Summary * (50-500 characters)</label>
+          <textarea
+            class="input"
+            rows="3"
+            formControlName="jobSummary"
+            placeholder="Brief overview of the position..."
+          ></textarea>
+          <div class="flex justify-between mt-1">
+            @if(jobForm.get('description.jobSummary')?.invalid && jobForm.get('description.jobSummary')?.touched) {
+              <p class="error">Summary must be 50-500 characters</p>
+            }
+            <span class="text-sm text-gray-500 ml-auto">
+              {{ jobForm.get('description.jobSummary')?.value?.length || 0 }} / 500
+            </span>
+          </div>
+        </div>
+
+        <!-- Detailed Description -->
+        <div class="mb-6">
+          <label class="label">Detailed Job Description * (min 100 characters)</label>
+          <textarea
+            class="input"
+            rows="6"
+            formControlName="jobDescription"
+            placeholder="Provide a detailed description of the role, team, and what the candidate will be doing..."
+          ></textarea>
+          @if(jobForm.get('description.jobDescription')?.invalid && jobForm.get('description.jobDescription')?.touched) {
+            <p class="error">Description must be at least 100 characters</p>
+          }
+        </div>
+
+        <!-- Key Responsibilities -->
+        <div class="mb-6" formArrayName="responsibilities">
+          <label class="label">Key Responsibilities *</label>
+          @for(responsibility of responsibilities.controls; track $index) {
+            <div class="flex gap-2 mb-2" [formGroupName]="$index">
+              <input
+                type="text"
+                class="input flex-1"
+                formControlName="text"
+                [placeholder]="'Responsibility ' + ($index + 1)"
+              />
+              <button
+                type="button"
+                (click)="removeResponsibility($index)"
+                class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+                [disabled]="responsibilities.length === 1"
+              >
+                Remove
+              </button>
+            </div>
+          }
+          <button
+            type="button"
+            (click)="addResponsibility()"
+            class="mt-2 text-primary hover:underline text-sm"
+          >
+            + Add Responsibility
+          </button>
+        </div>
+
+        <!-- Requirements -->
+        <div formArrayName="requirements">
+          <label class="label">Requirements *</label>
+          @for(requirement of requirements.controls; track $index) {
+            <div class="flex gap-2 mb-2" [formGroupName]="$index">
+              <input
+                type="text"
+                class="input flex-1"
+                formControlName="text"
+                [placeholder]="'Requirement ' + ($index + 1)"
+              />
+              <button
+                type="button"
+                (click)="removeRequirement($index)"
+                class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+                [disabled]="requirements.length === 1"
+              >
+                Remove
+              </button>
+            </div>
+          }
+          <button
+            type="button"
+            (click)="addRequirement()"
+            class="mt-2 text-primary hover:underline text-sm"
+          >
+            + Add Requirement
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Qualifications & Skills -->
+    @if(currentStep === 3) {
+      <div class="bg-white rounded-lg shadow-md p-6" formGroupName="qualifications">
+        <h2 class="text-2xl font-semibold mb-6">Qualifications & Skills</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Education Level -->
+          <div>
+            <label class="label">Education Level *</label>
+            <select class="input" formControlName="educationLevel">
+              @for(level of educationLevels; track level.value) {
+                <option [value]="level.value">{{ level.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Experience Level -->
+          <div>
+            <label class="label">Experience Level *</label>
+            <select class="input" formControlName="experienceLevel">
+              @for(level of experienceLevels; track level.value) {
+                <option [value]="level.value">{{ level.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Years of Experience -->
+          <div class="md:col-span-2">
+            <label class="label">Minimum Years of Experience *</label>
+            <input
+              type="number"
+              class="input"
+              formControlName="yearsOfExperience"
+              min="0"
+              max="50"
+              placeholder="0"
+            />
+            @if(jobForm.get('qualifications.yearsOfExperience')?.invalid && jobForm.get('qualifications.yearsOfExperience')?.touched) {
+              <p class="error">Years of experience must be between 0 and 50</p>
+            }
+          </div>
+        </div>
+
+        <!-- Required Skills -->
+        <div class="mt-6" formArrayName="requiredSkills">
+          <label class="label">Required Skills *</label>
+          <p class="text-sm text-gray-600 mb-3">Add skills that are essential for this role</p>
+          @for(skill of requiredSkills.controls; track $index) {
+            <div class="flex gap-2 mb-2" [formGroupName]="$index">
+              <input
+                type="text"
+                class="input flex-1"
+                formControlName="name"
+                placeholder="e.g., JavaScript, Project Management"
+              />
+              <button
+                type="button"
+                (click)="removeRequiredSkill($index)"
+                class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+              >
+                Remove
+              </button>
+            </div>
+          }
+          <button
+            type="button"
+            (click)="addRequiredSkill()"
+            class="mt-2 text-primary hover:underline text-sm"
+          >
+            + Add Required Skill
+          </button>
+        </div>
+
+        <!-- Preferred Skills -->
+        <div class="mt-6" formArrayName="preferredSkills">
+          <label class="label">Preferred Skills (Optional)</label>
+          <p class="text-sm text-gray-600 mb-3">Add nice-to-have skills</p>
+          @if(preferredSkills.length === 0) {
+            <button
+              type="button"
+              (click)="addPreferredSkill()"
+              class="text-primary hover:underline text-sm"
+            >
+              + Add Preferred Skill
+            </button>
+          } @else {
+            @for(skill of preferredSkills.controls; track $index) {
+              <div class="flex gap-2 mb-2" [formGroupName]="$index">
+                <input
+                  type="text"
+                  class="input flex-1"
+                  formControlName="name"
+                  placeholder="e.g., TypeScript, Agile Certification"
+                />
+                <button
+                  type="button"
+                  (click)="removePreferredSkill($index)"
+                  class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+                >
+                  Remove
+                </button>
+              </div>
+            }
+            <button
+              type="button"
+              (click)="addPreferredSkill()"
+              class="mt-2 text-primary hover:underline text-sm"
+            >
+              + Add Another Skill
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Step 4: Compensation & Benefits -->
+    @if(currentStep === 4) {
+      <div class="bg-white rounded-lg shadow-md p-6" formGroupName="compensation">
+        <h2 class="text-2xl font-semibold mb-6">Compensation & Benefits</h2>
+
+        <!-- Show Salary Option -->
+        <div class="mb-6">
+          <label class="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              formControlName="showSalary"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+            />
+            <span class="ml-3 text-sm font-medium text-gray-700">
+              Display salary range on job posting
+            </span>
+          </label>
+          <p class="text-sm text-gray-500 mt-1 ml-8">
+            Job posts with salary information typically receive more applications
+          </p>
+        </div>
+
+        @if(jobForm.get('compensation.showSalary')?.value) {
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Salary Type -->
+            <div>
+              <label class="label">Salary Type *</label>
+              <select class="input" formControlName="salaryType">
+                @for(type of salaryTypes; track type.value) {
+                  <option [value]="type.value">{{ type.label }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Currency -->
+            <div>
+              <label class="label">Currency *</label>
+              <select class="input" formControlName="currency">
+                @for(curr of currencies; track curr.value) {
+                  <option [value]="curr.value">{{ curr.label }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Placeholder for alignment -->
+            <div></div>
+
+            <!-- Min Salary -->
+            <div>
+              <label class="label">Minimum Salary</label>
+              <input
+                type="number"
+                class="input"
+                formControlName="salaryMin"
+                placeholder="50000"
+              />
+            </div>
+
+            <!-- Max Salary -->
+            <div>
+              <label class="label">Maximum Salary</label>
+              <input
+                type="number"
+                class="input"
+                formControlName="salaryMax"
+                placeholder="80000"
+              />
+            </div>
+          </div>
+        }
+
+        <!-- Equity -->
+        <div class="mb-6">
+          <label class="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              formControlName="hasEquity"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+            />
+            <span class="ml-3 text-sm font-medium text-gray-700">
+              This position includes equity/stock options
+            </span>
+          </label>
+        </div>
+
+        <!-- Benefits -->
+        <div>
+          <label class="label mb-3">Benefits & Perks</label>
+          <p class="text-sm text-gray-600 mb-4">Select all that apply</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            @for(benefit of benefitOptions; track benefit.value) {
+              <label class="flex items-center cursor-pointer group">
+                <input
+                  type="checkbox"
+                  [checked]="isBenefitSelected(benefit.value)"
+                  (change)="onBenefitChange(benefit.value, $event)"
+                  class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+                />
+                <span class="ml-3 text-sm text-gray-700 group-hover:text-primary transition-colors">
+                  {{ benefit.label }}
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 5: Application Settings -->
+    @if(currentStep === 5) {
+      <div class="bg-white rounded-lg shadow-md p-6" formGroupName="applicationSettings">
+        <h2 class="text-2xl font-semibold mb-6">Application Settings</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Application Deadline -->
+          <div>
+            <label class="label">Application Deadline (Optional)</label>
+            <input
+              type="date"
+              class="input"
+              formControlName="applicationDeadline"
+              [min]="getCurrentDate()"
+            />
+            <p class="text-sm text-gray-500 mt-1">
+              Leave blank for ongoing applications
+            </p>
+          </div>
+
+          <!-- Travel Requirement -->
+          <div>
+            <label class="label">Travel Requirement *</label>
+            <select class="input" formControlName="travelRequirement">
+              @for(req of travelRequirements; track req.value) {
+                <option [value]="req.value">{{ req.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Visa Sponsorship -->
+          <div class="md:col-span-2">
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                formControlName="visaSponsorship"
+                class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+              />
+              <span class="ml-3 text-sm font-medium text-gray-700">
+                Visa sponsorship available
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Application Method -->
+        <div class="mt-6">
+          <label class="label">Application Method *</label>
+          <div class="space-y-3">
+            @for(method of applicationMethods; track method.value) {
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  formControlName="applicationMethod"
+                  [value]="method.value"
+                  class="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
+                />
+                <span class="ml-3 text-sm font-medium text-gray-700">
+                  {{ method.label }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <!-- External URL -->
+          @if(jobForm.get('applicationSettings.applicationMethod')?.value === 'external') {
+            <div class="mt-4">
+              <label class="label">External Application URL *</label>
+              <input
+                type="url"
+                class="input"
+                formControlName="externalUrl"
+                placeholder="https://company.com/careers/apply"
+              />
+              @if(jobForm.get('applicationSettings.externalUrl')?.invalid && jobForm.get('applicationSettings.externalUrl')?.touched) {
+                <p class="error">Please enter a valid URL (starting with http:// or https://)</p>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Screening Questions -->
+        <div class="mt-6" formArrayName="screeningQuestions">
+          <label class="label">Screening Questions (Optional)</label>
+          <p class="text-sm text-gray-600 mb-3">Add custom questions for applicants</p>
+          @if(screeningQuestions.length === 0) {
+            <button
+              type="button"
+              (click)="addScreeningQuestion()"
+              class="text-primary hover:underline text-sm"
+            >
+              + Add Screening Question
+            </button>
+          } @else {
+            @for(question of screeningQuestions.controls; track $index) {
+              <div class="flex gap-2 mb-2" [formGroupName]="$index">
+                <input
+                  type="text"
+                  class="input flex-1"
+                  formControlName="question"
+                  [placeholder]="'Question ' + ($index + 1)"
+                />
+                <button
+                  type="button"
+                  (click)="removeScreeningQuestion($index)"
+                  class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+                >
+                  Remove
+                </button>
+              </div>
+            }
+            <button
+              type="button"
+              (click)="addScreeningQuestion()"
+              class="mt-2 text-primary hover:underline text-sm"
+            >
+              + Add Another Question
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Step 6: Preview -->
+    @if(currentStep === 6) {
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-semibold mb-6">Preview Your Job Posting</h2>
+
+        <!-- Job Header -->
+        <div class="border-b pb-6 mb-6">
+          <h3 class="text-3xl font-bold text-gray-900 mb-3">
+            {{ jobForm.get('basicInfo.jobTitle')?.value }}
+          </h3>
+          <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+            <span class="flex items-center gap-1">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              {{ getEmploymentTypeLabel(jobForm.get('basicInfo.employmentType')?.value) }}
+            </span>
+            <span class="flex items-center gap-1">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {{ jobForm.get('basicInfo.location')?.value }}
+            </span>
+            <span class="flex items-center gap-1">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              {{ getDepartmentLabel(jobForm.get('basicInfo.department')?.value) }}
+            </span>
+            @if(jobForm.get('basicInfo.numberOfOpenings')?.value > 1) {
+              <span class="flex items-center gap-1">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {{ jobForm.get('basicInfo.numberOfOpenings')?.value }} openings
+              </span>
+            }
+          </div>
+
+          @if(jobForm.get('compensation.showSalary')?.value && 
+              (jobForm.get('compensation.salaryMin')?.value || jobForm.get('compensation.salaryMax')?.value)) {
+            <div class="mt-4 inline-block bg-green-100 text-green-800 px-4 py-2 rounded-lg font-semibold">
+              💰 {{ formatSalaryRange() }}
+            </div>
+          }
+        </div>
+
+        <!-- Job Summary -->
+        <div class="mb-6">
+          <h4 class="text-lg font-semibold text-gray-900 mb-3">About the Role</h4>
+          <p class="text-gray-700 leading-relaxed">
+            {{ jobForm.get('description.jobSummary')?.value }}
+          </p>
+        </div>
+
+        <!-- Job Description -->
+        <div class="mb-6">
+          <h4 class="text-lg font-semibold text-gray-900 mb-3">Job Description</h4>
+          <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+            {{ jobForm.get('description.jobDescription')?.value }}
+          </p>
+        </div>
+
+        <!-- Responsibilities -->
+        <div class="mb-6">
+          <h4 class="text-lg font-semibold text-gray-900 mb-3">Key Responsibilities</h4>
+          <ul class="list-disc list-inside space-y-2 text-gray-700">
+            @for(resp of responsibilities.value; track $index) {
+              <li>{{ resp.text }}</li>
+            }
+          </ul>
+        </div>
+
+        <!-- Requirements -->
+        <div class="mb-6">
+          <h4 class="text-lg font-semibold text-gray-900 mb-3">Requirements</h4>
+          <ul class="list-disc list-inside space-y-2 text-gray-700">
+            @for(req of requirements.value; track $index) {
+              <li>{{ req.text }}</li>
+            }
+          </ul>
+        </div>
+
+        <!-- Qualifications -->
+        <div class="mb-6">
+          <h4 class="text-lg font-semibold text-gray-900 mb-3">Qualifications</h4>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="font-medium text-gray-700">Education:</span>
+              <span class="text-gray-600 ml-2">
+                {{ getEducationLabel(jobForm.get('qualifications.educationLevel')?.value) }}
+              </span>
+            </div>
+            <div>
+              <span class="font-medium text-gray-700">Experience:</span>
+              <span class="text-gray-600 ml-2">
+                {{ getExperienceLabel(jobForm.get('qualifications.experienceLevel')?.value) }}
+                ({{ jobForm.get('qualifications.yearsOfExperience')?.value }}+ years)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        @if(requiredSkills.length > 0) {
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-3">Required Skills</h4>
+            <div class="flex flex-wrap gap-2">
+              @for(skill of requiredSkills.value; track $index) {
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                  {{ skill.name }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        @if(preferredSkills.length > 0) {
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-3">Preferred Skills</h4>
+            <div class="flex flex-wrap gap-2">
+              @for(skill of preferredSkills.value; track $index) {
+                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                  {{ skill.name }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Benefits -->
+        @if(benefits.length > 0) {
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-3">Benefits & Perks</h4>
+            <div class="grid grid-cols-2 gap-2">
+              @for(benefit of benefits.value; track $index) {
+                <div class="flex items-center gap-2 text-sm text-gray-700">
+                  <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {{ getBenefitLabel(benefit) }}
+                </div>
+              }
+            </div>
+            @if(jobForm.get('compensation.hasEquity')?.value) {
+              <div class="flex items-center gap-2 text-sm text-gray-700 mt-2">
+                <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Equity/Stock Options
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Additional Info -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+          <h4 class="text-lg font-semibold text-gray-900 mb-3">Additional Information</h4>
+          <div class="space-y-2 text-sm">
+            @if(jobForm.get('applicationSettings.applicationDeadline')?.value) {
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span class="text-gray-700">
+                  Application Deadline: {{ formatDate(jobForm.get('applicationSettings.applicationDeadline')?.value) }}
+                </span>
+              </div>
+            }
+            @if(jobForm.get('applicationSettings.visaSponsorship')?.value) {
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                <span class="text-gray-700">Visa sponsorship available</span>
+              </div>
+            }
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span class="text-gray-700">
+                Travel: {{ getTravelLabel(jobForm.get('applicationSettings.travelRequirement')?.value) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screening Questions -->
+        @if(screeningQuestions.length > 0) {
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-3">Screening Questions</h4>
+            <p class="text-sm text-gray-600 mb-3">Applicants will need to answer these questions:</p>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+              @for(q of screeningQuestions.value; track $index) {
+                <li>{{ q.question }}</li>
+              }
+            </ol>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Navigation Buttons -->
+    <div class="flex justify-between mt-8">
+      <button
+        type="button"
+        (click)="previousStep()"
+        class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+        [disabled]="currentStep === 1"
+      >
+        ← Previous
+      </button>
+
+      <div class="flex gap-3">
+        @if(currentStep < 6) {
+          <!-- Save as Draft -->
+          <button
+            type="button"
+            (click)="onSubmit(true)"
+            class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+            [disabled]="isLoading"
+          >
+            💾 Save as Draft
+          </button>
+
+          <!-- Next -->
+          <button
+            type="button"
+            (click)="nextStep()"
+            class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark font-medium"
+          >
+            Next →
+          </button>
+        } @else {
+          <!-- Edit -->
+          <button
+            type="button"
+            (click)="currentStep = 1"
+            class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+          >
+            ← Edit
+          </button>
+
+          <!-- Save as Draft -->
+          <button
+            type="button"
+            (click)="onSubmit(true)"
+            class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+            [disabled]="isLoading"
+          >
+            💾 Save as Draft
+          </button>
+
+          <!-- Publish -->
+          <button
+            type="button"
+            (click)="onSubmit(false)"
+            class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+            [disabled]="isLoading || jobForm.invalid"
+          >
+            @if(isLoading) {
+              <span>Publishing...</span>
+            } @else {
+              <span>✓ Publish Job</span>
+            }
+          </button>
+        }
+      </div>
+    </div>
+  </form>
 </div>

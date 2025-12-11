@@ -1,7 +1,15 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { passwordMatchValidator, passwordStrengthValidator } from '../../shared/utils/helpers';
+import {
+  passwordMatchValidator,
+  passwordStrengthValidator,
+  atLeastOneRoleValidator,
+} from '../../shared/utils/helpers';
 
 @Component({
   selector: 'app-sign-up',
@@ -12,20 +20,27 @@ import { passwordMatchValidator, passwordStrengthValidator } from '../../shared/
 export class SignUp {
   private formBuilder = inject(FormBuilder);
 
-  public signUpForm = this.formBuilder.group({
-    username: this.formBuilder.control('', {
-      validators: [Validators.required, Validators.minLength(5)],
-    }),
-    email: this.formBuilder.control('', { validators: [Validators.required, Validators.email] }),
-    password: this.formBuilder.control('', {
-      validators: [Validators.required, passwordStrengthValidator()],
-    }),
-    confirmPassword: this.formBuilder.control('', {
-      validators: [Validators.required, passwordStrengthValidator()],
-    }),
-  }, {
-  validators: passwordMatchValidator
-});
+  public signUpForm = this.formBuilder.group(
+    {
+      username: this.formBuilder.control('', {
+        validators: [Validators.required, Validators.minLength(5)],
+      }),
+      email: this.formBuilder.control('', {
+        validators: [Validators.required, Validators.email],
+      }),
+      isApplicant: this.formBuilder.control(false),
+      isEmployer: this.formBuilder.control(false),
+      password: this.formBuilder.control('', {
+        validators: [Validators.required, passwordStrengthValidator()],
+      }),
+      confirmPassword: this.formBuilder.control('', {
+        validators: [Validators.required, passwordStrengthValidator()],
+      }),
+    },
+    {
+      validators: [passwordMatchValidator, atLeastOneRoleValidator],
+    }
+  );
 
   get username() {
     return this.signUpForm.get('username');
@@ -34,6 +49,15 @@ export class SignUp {
   get email() {
     return this.signUpForm.get('email');
   }
+
+  get isApplicant() {
+    return this.signUpForm.get('isApplicant');
+  }
+
+  get isEmployer() {
+    return this.signUpForm.get('isEmployer');
+  }
+
   get password() {
     return this.signUpForm.get('password');
   }
@@ -45,6 +69,21 @@ export class SignUp {
   public onFormSubmit() {
     this.signUpForm.markAllAsTouched();
     if (this.signUpForm.invalid) return;
-    console.log(this.signUpForm.value);
+
+    // Prepare data with roles array
+    const formValue = this.signUpForm.value;
+    const roles = [];
+    if (formValue.isApplicant) roles.push('APPLICANT');
+    if (formValue.isEmployer) roles.push('EMPLOYER');
+
+    const signupData = {
+      username: formValue.username,
+      email: formValue.email,
+      password: formValue.password,
+      roles: roles,
+    };
+
+    console.log(signupData);
+    // TODO: Call your API service here
   }
 }

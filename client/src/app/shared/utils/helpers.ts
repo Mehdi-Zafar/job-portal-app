@@ -33,9 +33,16 @@ export const passwordMatchValidator: ValidatorFn = (
 ): ValidationErrors | null => {
   const password = formGroup.get('password')?.value;
   const confirm = formGroup.get('confirmPassword')?.value;
-  debugger;
   if (password !== confirm) {
     return { passwordMismatch: true };
   }
   return null;
 };
+
+export function atLeastOneRoleValidator(control: AbstractControl): ValidationErrors | null {
+  const formGroup = control as any;
+  const isApplicant = formGroup.get('isApplicant')?.value;
+  const isEmployer = formGroup.get('isEmployer')?.value;
+  
+  return (isApplicant || isEmployer) ? null : { noRoleSelected: true };
+}
