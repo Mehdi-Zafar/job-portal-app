@@ -1,9 +1,10 @@
 // src/app/features/employer/post-job/post-job.component.ts
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { applicationMethods, benefitOptions, currencies, departments, educationLevels, employmentTypes, experienceLevels, salaryTypes, travelRequirements, workplaceTypes } from '../../shared/utils/constants';
+import { QuillModule } from 'ngx-quill'; 
 
 interface JobFormData {
   // Basic Information
@@ -48,18 +49,53 @@ interface JobFormData {
 @Component({
   selector: 'app-post-job',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule,QuillModule],
   templateUrl: './post-job.html',
   styleUrl: './post-job.css',
 })
 export class PostJob implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   currentStep = 1;
   totalSteps = 6;
   isLoading = false;
   showPreview = false;
+  showDescriptionPreview = false;
+  descriptionLength = 0;
+
+  quillConfig = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+      ['blockquote', 'code-block'],
+      
+      [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+      [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+      
+      [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      
+      [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults
+      [{ 'align': [] }],
+      
+      ['clean'],                                         // remove formatting button
+      ['link']                                           // link
+    ]
+  };
+
+  // Minimal toolbar configuration (alternative)
+  quillConfigMinimal = {
+    toolbar: [
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'header': [1, 2, 3, false] }],
+      ['link'],
+      ['clean']
+    ]
+  };
 
   // Dropdown options
   public employmentTypes = employmentTypes
@@ -207,6 +243,10 @@ export class PostJob implements OnInit {
     return this.jobForm.get('applicationSettings.screeningQuestions') as FormArray;
   }
 
+  get isAdditionalInfo(){
+    return this.jobForm.get('applicationSettings.applicationDeadline')?.value || this.jobForm.get('applicationSettings.visaSponsorship')?.value || this.jobForm.get('applicationSettings.travelRequirement')?.value !== 'none'
+  }
+
   // Add/Remove Methods
   addResponsibility() {
     this.responsibilities.push(this.createResponsibilityField());
@@ -304,7 +344,7 @@ export class PostJob implements OnInit {
     const groupName = stepGroups[this.currentStep];
     if (groupName) {
       const group = this.jobForm.get(groupName);
-      console.log(group?.valid)
+      console.log(group,group?.valid)
       return group?.valid || false;
     }
     return true;
@@ -488,5 +528,33 @@ export class PostJob implements OnInit {
       month: 'long',
       day: 'numeric',
     });
+  }
+
+   setupDescriptionWatcher() {
+    this.jobForm.get('description.jobDescription')?.valueChanges.subscribe((value) => {
+      this.descriptionLength = this.getPlainTextLength(value || '');
+      // Trigger change detection to update the view
+      this.cdr.detectChanges();
+    });
+  }
+
+  onDescriptionChange(event: any) {
+    // This gets called when content changes
+    if (event.html !== null) {
+      this.descriptionLength = this.getPlainTextLength(event.html);
+      this.cdr.markForCheck();
+    }
+  }
+
+  toggleDescriptionPreview() {
+    this.showDescriptionPreview = !this.showDescriptionPreview;
+  }
+
+  getPlainTextLength(html: string): number {
+    if (!html) return 0;
+    // Create a temporary div to extract text content
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    return (temp.textContent || temp.innerText || '').trim().length;
   }
 }

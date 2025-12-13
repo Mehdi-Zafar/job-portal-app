@@ -62,3 +62,307 @@ body {
   z-index: -1;
   /* border: 1px solid #000000; */
 }
+
+.custom-quill-editor {
+  background: white;
+}
+
+/* Quill editor container */
+:host ::ng-deep .custom-quill-editor .ql-container {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-color: #d1d5db;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Quill toolbar */
+:host ::ng-deep .custom-quill-editor .ql-toolbar {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+/* Quill editor content area */
+:host ::ng-deep .custom-quill-editor .ql-editor {
+  min-height: 300px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Placeholder styling */
+:host ::ng-deep .custom-quill-editor .ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: normal;
+}
+
+/* Focus state */
+:host ::ng-deep .custom-quill-editor .ql-container.ql-snow,
+:host ::ng-deep .custom-quill-editor .ql-toolbar.ql-snow {
+  border-color: #d1d5db;
+}
+
+:host ::ng-deep .custom-quill-editor:focus-within .ql-container.ql-snow,
+:host ::ng-deep .custom-quill-editor:focus-within .ql-toolbar.ql-snow {
+  border-color: var(--primary-color, #2563eb);
+}
+
+/* Toolbar buttons hover */
+:host ::ng-deep .ql-toolbar button:hover,
+:host ::ng-deep .ql-toolbar button:focus {
+  color: var(--primary-color, #2563eb);
+}
+
+:host ::ng-deep .ql-toolbar button.ql-active {
+  color: var(--primary-color, #2563eb);
+}
+
+/* ============================================ */
+/* PREVIEW SECTION STYLING - FIXED LISTS */
+/* ============================================ */
+
+.prose {
+  color: #374151;
+  line-height: 1.75;
+}
+
+/* Headings */
+.prose h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.prose h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose h6 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Paragraphs */
+.prose p {
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+/* Ordered Lists - FIXED */
+.prose ol {
+  list-style-type: decimal;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.prose ol li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
+  display: list-item;
+}
+
+/* Nested ordered lists */
+.prose ol ol {
+  list-style-type: lower-alpha;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.prose ol ol ol {
+  list-style-type: lower-roman;
+}
+
+/* Unordered Lists - FIXED */
+.prose ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.prose ul li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
+  display: list-item;
+}
+
+/* Nested unordered lists */
+.prose ul ul {
+  list-style-type: circle;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.prose ul ul ul {
+  list-style-type: square;
+}
+
+/* List items general */
+.prose li {
+  line-height: 1.6;
+}
+
+.prose li p {
+  margin-bottom: 0.5rem;
+}
+
+/* Strong/Bold */
+.prose strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Emphasis/Italic */
+.prose em {
+  font-style: italic;
+}
+
+/* Underline */
+.prose u {
+  text-decoration: underline;
+}
+
+/* Strikethrough */
+.prose s {
+  text-decoration: line-through;
+}
+
+/* Links */
+.prose a {
+  color: var(--primary-color, #2563eb);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.prose a:hover {
+  color: #1d4ed8;
+}
+
+/* Blockquotes */
+.prose blockquote {
+  border-left: 4px solid #d1d5db;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.prose blockquote p {
+  margin: 0;
+}
+
+/* Code */
+.prose code {
+  background: #f3f4f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #1f2937;
+}
+
+/* Code blocks */
+.prose pre {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+/* Subscript and Superscript */
+.prose sub {
+  font-size: 0.75em;
+  vertical-align: sub;
+}
+
+.prose sup {
+  font-size: 0.75em;
+  vertical-align: super;
+}
+
+/* Text alignment */
+.prose .ql-align-center {
+  text-align: center;
+}
+
+.prose .ql-align-right {
+  text-align: right;
+}
+
+.prose .ql-align-justify {
+  text-align: justify;
+}
+
+/* Indentation */
+.prose .ql-indent-1 {
+  padding-left: 3em;
+}
+
+.prose .ql-indent-2 {
+  padding-left: 6em;
+}
+
+.prose .ql-indent-3 {
+  padding-left: 9em;
+}
+
+/* Font sizes */
+.prose .ql-size-small {
+  font-size: 0.75em;
+}
+
+.prose .ql-size-large {
+  font-size: 1.5em;
+}
+
+.prose .ql-size-huge {
+  font-size: 2.5em;
+}
