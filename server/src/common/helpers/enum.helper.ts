@@ -1,0 +1,1 @@
+export const enumValues = <T extends Record<string, string>>(e: T) => Object.values(e) as [string, ...string[]];

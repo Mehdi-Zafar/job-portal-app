@@ -123,8 +123,8 @@ async function seed() {
         currentLocation: 'San Francisco, CA',
         experienceLevel: 'SENIOR',
         yearsOfExperience: 8,
-        expectedSalaryMin: '120000',
-        expectedSalaryMax: '180000',
+        expectedSalaryMin: 120000,
+        expectedSalaryMax: 180000,
         isProfileComplete: true,
         completionPercentage: 100,
       })
@@ -215,8 +215,8 @@ The ideal candidate has strong experience with both frontend and backend develop
         yearsOfExperience: 5,
         showSalary: true,
         salaryType: 'ANNUAL',
-        salaryMin: '140000',
-        salaryMax: '200000',
+        salaryMin: 140000,
+        salaryMax: 200000,
         currency: 'USD',
         benefits: [
           'health-insurance',

@@ -3,34 +3,23 @@ import { pgTable, uuid, varchar, text, boolean, integer, decimal, timestamp, pgE
 import { relations } from 'drizzle-orm';
 import { employerProfiles } from './profiles.schema';
 import { jobRequiredSkills, jobApplications } from './applications.schema';
+import { ApplicationMethod, EducationLevel, EmploymentType, JobStatus, SalaryType, TravelRequirement, WorkplaceType } from 'src/common/enums';
+import { enumValues } from 'src/common/helpers/enum.helper';
 
 // Enums
-export const employmentTypeEnum = pgEnum('employment_type', [
-  'FULL_TIME',
-  'PART_TIME',
-  'CONTRACT',
-  'INTERNSHIP',
-  'TEMPORARY',
-]);
+export const employmentTypeEnum = pgEnum('employment_type', enumValues(EmploymentType));
 
-export const workplaceTypeEnum = pgEnum('workplace_type', ['ON_SITE', 'REMOTE', 'HYBRID']);
+export const workplaceTypeEnum = pgEnum('workplace_type', enumValues(WorkplaceType));
 
-export const jobStatusEnum = pgEnum('job_status', ['DRAFT', 'ACTIVE', 'CLOSED', 'CANCELLED']);
+export const jobStatusEnum = pgEnum('job_status', enumValues(JobStatus));
 
-export const educationLevelEnum = pgEnum('education_level', [
-  'HIGH_SCHOOL',
-  'ASSOCIATE',
-  'BACHELOR',
-  'MASTER',
-  'PHD',
-  'NONE',
-]);
+export const educationLevelEnum = pgEnum('education_level', enumValues(EducationLevel));
 
-export const salaryTypeEnum = pgEnum('salary_type', ['ANNUAL', 'MONTHLY', 'HOURLY']);
+export const salaryTypeEnum = pgEnum('salary_type', enumValues(SalaryType));
 
-export const travelRequirementEnum = pgEnum('travel_requirement', ['NONE', 'OCCASIONAL', 'FREQUENT', 'EXTENSIVE']);
+export const travelRequirementEnum = pgEnum('travel_requirement', enumValues(TravelRequirement));
 
-export const applicationMethodEnum = pgEnum('application_method', ['PLATFORM', 'EXTERNAL']);
+export const applicationMethodEnum = pgEnum('application_method', enumValues(ApplicationMethod));
 
 // Job Postings
 export const jobPostings = pgTable('job_postings', {
@@ -61,8 +50,8 @@ export const jobPostings = pgTable('job_postings', {
   // Compensation
   showSalary: boolean('show_salary').default(true),
   salaryType: salaryTypeEnum('salary_type'),
-  salaryMin: decimal('salary_min', { precision: 10, scale: 2 }),
-  salaryMax: decimal('salary_max', { precision: 10, scale: 2 }),
+  salaryMin: integer('salary_min'),
+  salaryMax: integer('salary_max'),
   currency: varchar('currency', { length: 10 }).default('USD'),
   benefits: text('benefits').array(), // Array of benefit strings
   hasEquity: boolean('has_equity').default(false),
