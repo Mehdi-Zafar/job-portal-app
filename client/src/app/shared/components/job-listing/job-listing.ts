@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { Bookmark, LucideAngularModule } from "lucide-angular";
+import { Component, Input } from '@angular/core';
+import { Bookmark, LucideAngularModule } from 'lucide-angular';
+import { Job } from '../../../core/models/job.model';
 
 @Component({
   selector: 'app-job-listing',
@@ -8,5 +9,6 @@ import { Bookmark, LucideAngularModule } from "lucide-angular";
   styleUrl: './job-listing.css',
 })
 export class JobListing {
-  readonly Bookmark = Bookmark
+  readonly Bookmark = Bookmark;
+  @Input() job: Job | null = null;
 }

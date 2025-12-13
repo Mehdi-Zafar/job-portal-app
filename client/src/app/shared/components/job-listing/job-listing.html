@@ -1,11 +1,9 @@
 <div class="bg-white shadow-md py-4 px-5 rounded-sm space-y-2 relative border border-gray-200">
-  <h5 class="text-xs">Company name</h5>
-  <h2 class="text-xl font-medium">Job Title</h2>
-  <span class="font-bold text-xs bg-blue-500/15 px-2 py-1.5 rounded-sm">$500-$1000</span>
-  <p class="text-xs mt-2">
-    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Incidunt facilis rerum id fugiat quasi
-    cumque rem quos similique deleniti saepe maiores eum enim, quibusdam repellat repellendus, et
-    voluptatum cum ratione.
+  <h5 class="text-xs">{{ job?.employerProfile?.companyName }}</h5>
+  <h2 class="text-xl font-medium">{{ job?.jobTitle }}</h2>
+  <span class="font-bold text-xs bg-blue-500/15 px-2 py-1.5 rounded-sm">${{job?.salaryMin}}-${{job?.salaryMax}}</span>
+  <p class="text-xs mt-2 line-clamp-4">
+    {{job?.jobSummary}}
   </p>
   <div class="absolute top-3 right-2">
     <lucide-angular [name]="Bookmark" size="20"></lucide-angular>

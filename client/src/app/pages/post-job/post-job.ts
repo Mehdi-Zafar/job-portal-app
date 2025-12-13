@@ -310,7 +310,6 @@ export class PostJob implements OnInit {
 
   // Navigation
   nextStep() {
-    debugger;
     if (this.validateCurrentStep()) {
       if (this.currentStep < this.totalSteps) {
         this.currentStep++;

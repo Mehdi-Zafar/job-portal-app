@@ -57,8 +57,8 @@
     </div>
   </div>
   <div class="my-8 grid grid-cols-3 gap-8">
-    @for (job of jobs; track $index) {
-        <app-job-listing></app-job-listing>
+    @for (job of jobs(); track $index) {
+    <app-job-listing [job]="job"></app-job-listing>
     }
   </div>
 </div>
