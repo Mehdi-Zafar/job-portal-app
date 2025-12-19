@@ -1,6 +1,7 @@
 // src/database/schema/users.schema.ts
-import { pgTable, uuid, varchar, boolean, timestamp, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, boolean, timestamp, pgEnum,text } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { applicantProfiles, employerProfiles } from './profiles.schema';
 
 // Enum for user roles
 export const userRoleEnum = pgEnum('user_role', ['APPLICANT', 'EMPLOYER', 'ADMIN']);
@@ -17,6 +18,8 @@ export const users = pgTable('users', {
   emailVerificationExpires: timestamp('email_verification_expires'),
   passwordResetToken: varchar('password_reset_token', { length: 255 }),
   passwordResetExpires: timestamp('password_reset_expires'),
+  refreshToken: text('refresh_token'),
+  refreshTokenExpires: timestamp('refresh_token_expires'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -51,5 +54,4 @@ export const userRolesRelations = relations(userRoles, ({ one }) => ({
   }),
 }));
 
-// Import from profiles (will be defined next)
-import { applicantProfiles, employerProfiles } from './profiles.schema';
+

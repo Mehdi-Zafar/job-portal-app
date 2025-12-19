@@ -1,5 +1,5 @@
 // src/app/core/services/users.service.ts
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -14,15 +14,19 @@ export class UsersService {
   private authService = inject(AuthService);
   private apiUrl = `${environment.apiUrl}/users`;
 
+  // Loading state signal
+  readonly loading = signal<boolean>(false);
+
   /**
    * Get current user profile
    */
   getProfile(): Observable<{ user: User }> {
+    this.loading.set(true);
+
     return this.http.get<{ user: User }>(`${this.apiUrl}/me`).pipe(
       tap((response) => {
-        // Update current user in auth service
-        this.authService['currentUserSubject'].next(response.user);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        this.authService.updateCurrentUser(response.user);
+        this.loading.set(false);
       })
     );
   }
@@ -31,10 +35,12 @@ export class UsersService {
    * Update user profile
    */
   updateProfile(data: { username?: string }): Observable<any> {
+    this.loading.set(true);
+
     return this.http.patch(`${this.apiUrl}/me`, data).pipe(
       tap(() => {
-        // Refresh user profile after update
         this.getProfile().subscribe();
+        this.loading.set(false);
       })
     );
   }
@@ -80,7 +86,6 @@ export class UsersService {
   addRole(role: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/me/roles`, { role }).pipe(
       tap(() => {
-        // Refresh user profile after adding role
         this.getProfile().subscribe();
       })
     );

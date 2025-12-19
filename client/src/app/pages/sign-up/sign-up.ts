@@ -10,6 +10,8 @@ import {
   passwordStrengthValidator,
   atLeastOneRoleValidator,
 } from '../../shared/utils/helpers';
+import { AuthService } from '../../core/services/auth.service';
+import { RegisterRequest } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-sign-up',
@@ -19,6 +21,7 @@ import {
 })
 export class SignUp {
   private formBuilder = inject(FormBuilder);
+  private authService = inject(AuthService);
 
   public signUpForm = this.formBuilder.group(
     {
@@ -76,14 +79,23 @@ export class SignUp {
     if (formValue.isApplicant) roles.push('APPLICANT');
     if (formValue.isEmployer) roles.push('EMPLOYER');
 
-    const signupData = {
-      username: formValue.username,
-      email: formValue.email,
-      password: formValue.password,
+    const signupData:RegisterRequest = {
+      username: formValue.username!,
+      email: formValue.email!,
+      password: formValue.password!,
       roles: roles,
     };
 
     console.log(signupData);
+    this.authService.register(signupData).subscribe({
+      next: (response) => {
+        console.log('Registration successful', response);
+        this.signUpForm.reset();
+      },
+      error: (error) => {
+        console.error('Registration failed', error);
+      },
+    });
     // TODO: Call your API service here
   }
 }

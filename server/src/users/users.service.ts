@@ -397,4 +397,43 @@ export class UsersService {
         ),
       );
   }
+
+  /**
+ * Update refresh token
+ */
+async updateRefreshToken(
+  id: string,
+  refreshToken: string,
+  refreshTokenExpires: Date,
+) {
+  const [updated] = await this.db
+    .update(users)
+    .set({
+      refreshToken,
+      refreshTokenExpires,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, id))
+    .returning();
+
+  return updated;
 }
+
+/**
+ * Clear refresh token
+ */
+async clearRefreshToken(id: string) {
+  const [updated] = await this.db
+    .update(users)
+    .set({
+      refreshToken: null,
+      refreshTokenExpires: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, id))
+    .returning();
+
+  return updated;
+}
+}
+
