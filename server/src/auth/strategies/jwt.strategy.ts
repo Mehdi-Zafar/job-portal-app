@@ -14,21 +14,27 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_SECRET')!,
+      secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 
   async validate(payload: any) {
     const user = await this.usersService.findById(payload.sub);
-    
+
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
+    if (!user.isActive) {
+      throw new UnauthorizedException('User account is deactivated');
+    }
+
+    // ✅ Return user with emailVerified status
     return {
-      userId: payload.sub,
-      email: payload.email,
+      userId: user.id,
+      email: user.email,
       roles: payload.roles,
+      emailVerified: user.emailVerified, // Include this
     };
   }
 }
