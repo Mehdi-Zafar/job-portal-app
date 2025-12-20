@@ -22,6 +22,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller('applicant-profiles')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -34,7 +35,7 @@ export class ApplicantProfilesController {
    * Create applicant profile (if not exists)
    */
   @Post()
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   async create(
     @CurrentUser() currentUser: any,
     @Body() createDto: CreateApplicantProfileDto,
@@ -65,7 +66,7 @@ export class ApplicantProfilesController {
    * Get my profile
    */
   @Get('me')
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   async getMyProfile(@CurrentUser() currentUser: any) {
     const profile = await this.applicantProfilesService.findByUserId(
       currentUser.userId,
@@ -84,7 +85,7 @@ export class ApplicantProfilesController {
    * Update my profile
    */
   @Patch('me')
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   async updateMyProfile(
     @CurrentUser() currentUser: any,
     @Body() updateDto: UpdateApplicantProfileDto,
@@ -104,7 +105,7 @@ export class ApplicantProfilesController {
    * Complete profile (wizard)
    */
   @Post('me/complete')
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   @HttpCode(HttpStatus.OK)
   async completeProfile(
     @CurrentUser() currentUser: any,
@@ -125,7 +126,7 @@ export class ApplicantProfilesController {
    * Add skill
    */
   @Post('me/skills')
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   async addSkill(
     @CurrentUser() currentUser: any,
     @Body() addSkillDto: AddSkillDto,
@@ -145,7 +146,7 @@ export class ApplicantProfilesController {
    * Get my skills
    */
   @Get('me/skills')
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   async getMySkills(@CurrentUser() currentUser: any) {
     const skills = await this.applicantProfilesService.getSkills(
       currentUser.userId,
@@ -160,7 +161,7 @@ export class ApplicantProfilesController {
    * Remove skill
    */
   @Delete('me/skills/:skillId')
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   @HttpCode(HttpStatus.OK)
   async removeSkill(
     @CurrentUser() currentUser: any,
@@ -176,7 +177,7 @@ export class ApplicantProfilesController {
    * Update resume
    */
   @Patch('me/resume')
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   async updateResume(
     @CurrentUser() currentUser: any,
     @Body('resumeUrl') resumeUrl: string,
@@ -196,7 +197,7 @@ export class ApplicantProfilesController {
    * Update profile image
    */
   @Patch('me/profile-image')
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   async updateProfileImage(
     @CurrentUser() currentUser: any,
     @Body('imageUrl') imageUrl: string,
@@ -235,7 +236,7 @@ export class ApplicantProfilesController {
    * Delete my profile
    */
   @Delete('me')
-  @Roles('APPLICANT')
+  @Roles(Role.APPLICANT)
   @HttpCode(HttpStatus.OK)
   async deleteProfile(@CurrentUser() currentUser: any) {
     return this.applicantProfilesService.delete(currentUser.userId);

@@ -22,9 +22,12 @@ import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
+import { EmailVerifiedGuard } from 'src/common/guards/email-verified/email-verified.guard';
+import { AllowUnverified } from 'src/common/decorators/allow-unverified.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller('jobs')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, EmailVerifiedGuard)
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
@@ -32,7 +35,7 @@ export class JobsController {
    * Create job posting
    */
   @Post()
-  @Roles('EMPLOYER')
+  @Roles(Role.EMPLOYER)
   async create(
     @CurrentUser() currentUser: any,
     @Body() createDto: CreateJobDto,
@@ -49,6 +52,7 @@ export class JobsController {
    * Get all jobs (public with filters)
    */
   @Get()
+  @AllowUnverified()
   @Public()
   async findAll(@Query() searchDto: SearchJobsDto) {
     const jobs = await this.jobsService.findAll(searchDto);
@@ -63,6 +67,7 @@ export class JobsController {
    * Search jobs (public)
    */
   @Get('search')
+  @AllowUnverified()
   @Public()
   async search(@Query() searchDto: SearchJobsDto) {
     const jobs = await this.jobsService.search(searchDto);
@@ -77,7 +82,7 @@ export class JobsController {
    * Get my jobs (employer only)
    */
   @Get('my-jobs')
-  @Roles('EMPLOYER')
+  @Roles(Role.EMPLOYER)
   async getMyJobs(@CurrentUser() currentUser: any) {
     const jobs = await this.jobsService.findByEmployer(currentUser.userId);
 
@@ -91,7 +96,7 @@ export class JobsController {
    * Get employer statistics
    */
   @Get('my-jobs/statistics')
-  @Roles('EMPLOYER')
+  @Roles(Role.EMPLOYER)
   async getStatistics(@CurrentUser() currentUser: any) {
     return this.jobsService.getEmployerStatistics(currentUser.userId);
   }
@@ -114,10 +119,7 @@ export class JobsController {
    */
   @Get(':id/similar')
   @Public()
-  async getSimilar(
-    @Param('id') id: string,
-    @Query('limit') limit?: string,
-  ) {
+  async getSimilar(@Param('id') id: string, @Query('limit') limit?: string) {
     const jobs = await this.jobsService.getSimilarJobs(
       id,
       limit ? parseInt(limit) : 5,
@@ -133,7 +135,7 @@ export class JobsController {
    * Update job
    */
   @Patch(':id')
-  @Roles('EMPLOYER')
+  @Roles(Role.EMPLOYER)
   async update(
     @Param('id') id: string,
     @CurrentUser() currentUser: any,
@@ -155,7 +157,7 @@ export class JobsController {
    * Update job status
    */
   @Patch(':id/status')
-  @Roles('EMPLOYER')
+  @Roles(Role.EMPLOYER)
   async updateStatus(
     @Param('id') id: string,
     @CurrentUser() currentUser: any,
@@ -177,11 +179,8 @@ export class JobsController {
    * Duplicate job
    */
   @Post(':id/duplicate')
-  @Roles('EMPLOYER')
-  async duplicate(
-    @Param('id') id: string,
-    @CurrentUser() currentUser: any,
-  ) {
+  @Roles(Role.EMPLOYER)
+  async duplicate(@Param('id') id: string, @CurrentUser() currentUser: any) {
     const job = await this.jobsService.duplicate(id, currentUser.userId);
 
     return {
@@ -194,12 +193,9 @@ export class JobsController {
    * Delete job
    */
   @Delete(':id')
-  @Roles('EMPLOYER')
+  @Roles(Role.EMPLOYER)
   @HttpCode(HttpStatus.OK)
-  async delete(
-    @Param('id') id: string,
-    @CurrentUser() currentUser: any,
-  ) {
+  async delete(@Param('id') id: string, @CurrentUser() currentUser: any) {
     return this.jobsService.delete(id, currentUser.userId);
   }
 }

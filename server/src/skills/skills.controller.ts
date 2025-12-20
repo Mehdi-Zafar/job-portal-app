@@ -19,6 +19,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Public } from '../common/decorators/public.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller('skills')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -168,7 +169,7 @@ export class SkillsController {
    * Bulk create skills (admin only)
    */
   @Post('bulk')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async bulkCreate(@Body('skills') skillsData: CreateSkillDto[]) {
     const result = await this.skillsService.bulkCreate(skillsData);
 
@@ -182,7 +183,7 @@ export class SkillsController {
    * Update skill (admin only)
    */
   @Patch(':id')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateSkillDto,
@@ -199,7 +200,7 @@ export class SkillsController {
    * Delete skill (admin only)
    */
   @Delete(':id')
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   async delete(@Param('id') id: string) {
     return this.skillsService.delete(id);
