@@ -51,7 +51,7 @@ function addToken(request: HttpRequest<any>, token: string): HttpRequest<any> {
  */
 function isAuthEndpoint(url: string): boolean {
   return (
-    url.includes('/sign-in') || url.includes('/auth/register') || url.includes('/auth/refresh')
+    url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/refresh')
   );
 }
 
