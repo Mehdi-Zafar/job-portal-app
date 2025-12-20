@@ -5,7 +5,7 @@ export interface User {
   email: string;
   emailVerified: boolean;
   isActive: boolean;
-  roles: string[];
+  roles: Role[];
   applicantProfile?: {
     id: string;
     isComplete: boolean;
@@ -27,5 +27,11 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  roles: string[];
+  roles: Role[];
+}
+
+export enum Role {
+  APPLICANT = 'APPLICANT',
+  EMPLOYER = 'EMPLOYER',
+  ADMIN = 'ADMIN',
 }
