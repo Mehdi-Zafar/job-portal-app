@@ -6,6 +6,8 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { AuthService } from './core/services/auth.service';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideToastr } from 'ngx-toastr';
 
 function initializeApp() {
   const authService = inject(AuthService);
@@ -20,5 +22,13 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([authInterceptor, errorInterceptor])
     ),
     provideAppInitializer(initializeApp),
+    provideAnimations(), // ✅ Enables animations for Angular
+    provideToastr({
+      timeOut: 2000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+      progressBar: true,
+      closeButton: true,
+    }),
   ]
 };
