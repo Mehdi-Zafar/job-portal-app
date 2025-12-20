@@ -85,7 +85,7 @@
         <!-- Employment Type -->
         <div>
           <label class="label">Employment Type *</label>
-          <select class="input" formControlName="employmentType">
+          <select class="select" formControlName="employmentType">
             <option value="">Select type</option>
             @for(type of employmentTypes; track type.value) {
             <option [value]="type.value">{{ type.label }}</option>
@@ -100,7 +100,7 @@
         <!-- Workplace Type -->
         <div>
           <label class="label">Workplace Type *</label>
-          <select class="input" formControlName="workplaceType">
+          <select class="select" formControlName="workplaceType">
             <option value="">Select type</option>
             @for(type of workplaceTypes; track type.value) {
             <option [value]="type.value">{{ type.label }}</option>
@@ -131,7 +131,7 @@
         <!-- Department -->
         <div>
           <label class="label">Department *</label>
-          <select class="input" formControlName="department">
+          <select class="select" formControlName="department">
             <option value="">Select department</option>
             @for(dept of departments; track dept.value) {
             <option [value]="dept.value">{{ dept.label }}</option>
@@ -196,7 +196,7 @@
         }
       </div> -->
 
-       <div class="mb-6">
+      <div class="mb-6">
         <label class="label">Detailed Job Description * (min 100 characters)</label>
         <p class="text-sm text-gray-600 mb-3">
           Provide a comprehensive description of the role, responsibilities, team structure, and
@@ -227,9 +227,7 @@ Include information about:
           <p class="error">Description must be at least 100 characters</p>
           }
           <span class="text-sm text-gray-500 ml-auto">
-            {{
-              getPlainTextLength(jobForm.get('description.jobDescription')?.value || '')
-            }}
+            {{ getPlainTextLength(jobForm.get('description.jobDescription')?.value || '') }}
             characters
           </span>
         </div>
@@ -258,37 +256,37 @@ Include information about:
 
       <!-- Key Responsibilities -->
       <div class="mb-6" formArrayName="responsibilities">
-          <label class="label">Key Responsibilities *</label>
-          @for(responsibility of responsibilities.controls; track $index) {
-            <div class="flex gap-2 mb-2" [formGroupName]="$index">
-              <input
-                type="text"
-                class="input flex-1"
-                formControlName="text"
-                [placeholder]="'Responsibility ' + ($index + 1)"
-              />
-              <button
-                type="button"
-                (click)="removeResponsibility($index)"
-                class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
-                [disabled]="responsibilities.length === 1"
-              >
-                Remove
-              </button>
-            </div>
-          }
+        <label class="label">Key Responsibilities *</label>
+        @for(responsibility of responsibilities.controls; track $index) {
+        <div class="flex gap-2 mb-2" [formGroupName]="$index">
+          <input
+            type="text"
+            class="input flex-1"
+            formControlName="text"
+            [placeholder]="'Responsibility ' + ($index + 1)"
+          />
           <button
             type="button"
-            (click)="addResponsibility()"
-            class="mt-2 text-primary hover:underline text-sm"
+            (click)="removeResponsibility($index)"
+            class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+            [disabled]="responsibilities.length === 1"
           >
-            + Add Responsibility
+            Remove
           </button>
-          @if(jobForm.get('description.responsibilities')?.invalid &&
-          jobForm.get('description.responsibilities')?.touched) {
-          <p class="error">Responsibilities is required</p>
-          }
         </div>
+        }
+        <button
+          type="button"
+          (click)="addResponsibility()"
+          class="mt-2 text-primary hover:underline text-sm"
+        >
+          + Add Responsibility
+        </button>
+        @if(jobForm.get('description.responsibilities')?.invalid &&
+        jobForm.get('description.responsibilities')?.touched) {
+        <p class="error">Responsibilities is required</p>
+        }
+      </div>
 
       <!-- Requirements -->
       <div formArrayName="requirements">
@@ -319,9 +317,9 @@ Include information about:
           + Add Requirement
         </button>
         @if(jobForm.get('description.requirements')?.invalid &&
-          jobForm.get('description.requirements')?.touched) {
-          <p class="error">Requirements is required</p>
-          }
+        jobForm.get('description.requirements')?.touched) {
+        <p class="error">Requirements is required</p>
+        }
       </div>
     </div>
     }
@@ -335,7 +333,7 @@ Include information about:
         <!-- Education Level -->
         <div>
           <label class="label">Education Level *</label>
-          <select class="input" formControlName="educationLevel">
+          <select class="select" formControlName="educationLevel">
             @for(level of educationLevels; track level.value) {
             <option [value]="level.value">{{ level.label }}</option>
             }
@@ -345,7 +343,7 @@ Include information about:
         <!-- Experience Level -->
         <div>
           <label class="label">Experience Level *</label>
-          <select class="input" formControlName="experienceLevel">
+          <select class="select" formControlName="experienceLevel">
             @for(level of experienceLevels; track level.value) {
             <option [value]="level.value">{{ level.label }}</option>
             }
@@ -468,7 +466,7 @@ Include information about:
         <!-- Salary Type -->
         <div>
           <label class="label">Salary Type *</label>
-          <select class="input" formControlName="salaryType">
+          <select class="select" formControlName="salaryType">
             @for(type of salaryTypes; track type.value) {
             <option [value]="type.value">{{ type.label }}</option>
             }
@@ -478,7 +476,7 @@ Include information about:
         <!-- Currency -->
         <div>
           <label class="label">Currency *</label>
-          <select class="input" formControlName="currency">
+          <select class="select" formControlName="currency">
             @for(curr of currencies; track curr.value) {
             <option [value]="curr.value">{{ curr.label }}</option>
             }
@@ -560,7 +558,7 @@ Include information about:
         <!-- Travel Requirement -->
         <div>
           <label class="label">Travel Requirement *</label>
-          <select class="input" formControlName="travelRequirement">
+          <select class="select" formControlName="travelRequirement">
             @for(req of travelRequirements; track req.value) {
             <option [value]="req.value">{{ req.label }}</option>
             }
@@ -744,12 +742,12 @@ Include information about:
 
       <!-- Job Description -->
       <div class="mb-6">
-      <h4 class="text-lg font-semibold text-gray-900 mb-3">Job Description</h4>
-      <div 
-        class="prose prose-sm max-w-none text-gray-700"
-        [innerHTML]="jobForm.get('description.jobDescription')?.value"
-      ></div>
-    </div>
+        <h4 class="text-lg font-semibold text-gray-900 mb-3">Job Description</h4>
+        <div
+          class="prose prose-sm max-w-none text-gray-700"
+          [innerHTML]="jobForm.get('description.jobDescription')?.value"
+        ></div>
+      </div>
 
       <!-- Responsibilities -->
       <div class="mb-6">
@@ -857,72 +855,71 @@ Include information about:
       }
 
       <!-- Additional Info -->
-       @if(isAdditionalInfo){
-         <div class="bg-gray-50 rounded-lg p-4 mb-6">
-           <h4 class="text-lg font-semibold text-gray-900 mb-3">Additional Information</h4>
-           <div class="space-y-2 text-sm">
-             @if(jobForm.get('applicationSettings.applicationDeadline')?.value) {
-             <div class="flex items-center gap-2">
-               <svg
-                 class="w-5 h-5 text-gray-600"
-                 fill="none"
-                 viewBox="0 0 24 24"
-                 stroke="currentColor"
-               >
-                 <path
-                   stroke-linecap="round"
-                   stroke-linejoin="round"
-                   stroke-width="2"
-                   d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                 />
-               </svg>
-               <span class="text-gray-700">
-                 Application Deadline:
-                 {{ formatDate(jobForm.get('applicationSettings.applicationDeadline')?.value) }}
-               </span>
-             </div>
-             } @if(jobForm.get('applicationSettings.visaSponsorship')?.value) {
-             <div class="flex items-center gap-2">
-               <svg
-                 class="w-5 h-5 text-gray-600"
-                 fill="none"
-                 viewBox="0 0 24 24"
-                 stroke="currentColor"
-               >
-                 <path
-                   stroke-linecap="round"
-                   stroke-linejoin="round"
-                   stroke-width="2"
-                   d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                 />
-               </svg>
-               <span class="text-gray-700">Visa sponsorship available</span>
-             </div>
-             }
-             @if(jobForm.get('applicationSettings.travelRequirement')?.value){
-               <div class="flex items-center gap-2">
-                 <svg
-                   class="w-5 h-5 text-gray-600"
-                   fill="none"
-                   viewBox="0 0 24 24"
-                   stroke="currentColor"
-                 >
-                   <path
-                     stroke-linecap="round"
-                     stroke-linejoin="round"
-                     stroke-width="2"
-                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                   />
-                 </svg>
-                 <span class="text-gray-700">
-                   Travel:
-                   {{ getTravelLabel(jobForm.get('applicationSettings.travelRequirement')?.value) }}
-                 </span>
-               </div>
-             }
-           </div>
-         </div>
-       }
+      @if(isAdditionalInfo){
+      <div class="bg-gray-50 rounded-lg p-4 mb-6">
+        <h4 class="text-lg font-semibold text-gray-900 mb-3">Additional Information</h4>
+        <div class="space-y-2 text-sm">
+          @if(jobForm.get('applicationSettings.applicationDeadline')?.value) {
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-5 h-5 text-gray-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <span class="text-gray-700">
+              Application Deadline:
+              {{ formatDate(jobForm.get('applicationSettings.applicationDeadline')?.value) }}
+            </span>
+          </div>
+          } @if(jobForm.get('applicationSettings.visaSponsorship')?.value) {
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-5 h-5 text-gray-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+              />
+            </svg>
+            <span class="text-gray-700">Visa sponsorship available</span>
+          </div>
+          } @if(jobForm.get('applicationSettings.travelRequirement')?.value){
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-5 h-5 text-gray-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+              />
+            </svg>
+            <span class="text-gray-700">
+              Travel:
+              {{ getTravelLabel(jobForm.get('applicationSettings.travelRequirement')?.value) }}
+            </span>
+          </div>
+          }
+        </div>
+      </div>
+      }
 
       <!-- Screening Questions -->
       @if(screeningQuestions.length > 0) {
@@ -944,7 +941,7 @@ Include information about:
       <button
         type="button"
         (click)="previousStep()"
-        class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+        class="outline-button"
         [disabled]="currentStep === 1"
       >
         ← Previous
@@ -956,7 +953,7 @@ Include information about:
         <button
           type="button"
           (click)="onSubmit(true)"
-          class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+          class="outline-button"
           [disabled]="isLoading"
         >
           💾 Save as Draft
@@ -966,7 +963,7 @@ Include information about:
         <button
           type="button"
           (click)="nextStep()"
-          class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark font-medium"
+          class="button"
         >
           Next →
         </button>

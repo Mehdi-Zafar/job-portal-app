@@ -132,8 +132,8 @@
 
       <!-- Submit Button -->
       <div class="flex items-center justify-between">
-        <button class="button w-full" type="submit" [disabled]="signUpForm.invalid">
-          Sign Up
+        <button class="button w-full" type="submit" [disabled]="signUpForm.invalid || isLoading()">
+          {{isLoading() ? 'Signing Up...' : 'Sign Up'}}
         </button>
       </div>
     </form>

@@ -29,12 +29,19 @@
         <p class="error">Password is required!</p>
         } }
       </div>
-      <a class="align-baseline font-medium text-xs text-primary mt-2 text-right block" href="#">
+      <a
+        class="align-baseline font-medium text-xs text-primary mt-2 text-right block"
+        routerLink="/forgot-password"
+      >
         Forgot Password?
       </a>
       <div class="flex items-center justify-between mt-4">
-        <button class="button w-full" type="submit" [disabled]="!!signInForm.invalid">
-          Sign In
+        <button
+          class="button w-full"
+          type="submit"
+          [disabled]="!!signInForm.invalid || isLoading()"
+        >
+          {{ isLoading() ? 'Signing In...' : 'Sign In' }}
         </button>
       </div>
     </form>
@@ -44,5 +51,3 @@
   </div>
   <!-- </div> -->
 </div>
-
-{{ signInForm.value | json }}

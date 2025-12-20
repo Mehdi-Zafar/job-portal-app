@@ -1,94 +1,128 @@
-<nav class="py-5 px-8 flex justify-between items-center shadow-sm">
-  <div><img src="/images/logo.webp" alt="" class="w-36" /></div>
-  <div class="flex-1 flex justify-center">
-    <ul class="flex gap-8">
-      <li>
-        <a
-          routerLink="/"
-          routerLinkActive="active-link"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >
-          Home
-        </a>
-      </li>
-      <li>
-        <a
-          routerLink="/find-jobs"
-          routerLinkActive="active-link"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >
-          Find Jobs
-        </a>
-      </li>
-      <li>
-        <a
-          routerLink="/post-job"
-          routerLinkActive="active-link"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >
-          Post Job
-        </a>
-      </li>
-    </ul>
+<nav class="py-4 px-8 flex justify-between items-center shadow-sm">
+  <div class="flex items-center gap-12">
+    <img src="/images/logo.webp" alt="" class="w-36" />
+    <div class="flex-1 flex justify-center">
+      <ul class="flex gap-8">
+        <li>
+          <a
+            routerLink="/"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            Home
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/find-jobs"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            Find Jobs
+          </a>
+        </li>
+        @if(isEmployer()){
+        <li>
+          <a
+            routerLink="/post-job"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            Post Job
+          </a>
+        </li>
+        }
+      </ul>
+    </div>
   </div>
   <div class="flex items-center gap-2">
-    @if(isAuthenticated){
+    @if (isAuthenticated()) {
+    <!-- User Dropdown -->
+    <div class="dropdown dropdown-end">
+      <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+        <div class="w-10 rounded-full">
+          <img src="/images/profile-picture.jpg" [alt]="currentUser()?.username" />
+        </div>
+      </label>
 
-    <img
-      id="avatarButton"
-      type="button"
-      data-dropdown-toggle="userDropdown"
-      data-dropdown-placement="bottom-start"
-      class="w-10 h-10 rounded-full cursor-pointer"
-      src="/images/profile-picture.jpg"
-      alt="User dropdown"
-    />
+      <ul
+        tabindex="0"
+        class="menu menu-sm dropdown-content mt-3 z-1 p-2 shadow bg-base-100 rounded-box w-52"
+      >
+        <!-- User Info Header -->
+        <li class="menu-title">
+          <span class="text-base-content">{{ currentUser()?.username }}</span>
+          <span class="text-xs text-base-content/60">{{ currentUser()?.email }}</span>
+        </li>
 
-    <!-- Dropdown menu -->
-    <div
-      id="userDropdown"
-      class="z-10 hidden bg-neutral-primary-medium border border-default-medium rounded-base shadow-lg w-44"
-    >
-      <div class="px-4 py-3 border-b border-default-medium text-sm text-heading">
-        <div class="font-medium">Bonnie Green</div>
-        <div class="truncate">name@flowbite.com</div>
-      </div>
-      <ul class="p-2 text-sm text-body font-medium" aria-labelledby="avatarButton">
+        <li class="divider"></li>
+
+        <!-- Role-based Profile Links -->
+        @if (isApplicant()) {
+        <!-- Applicant Menu -->
         <li>
-          <a
-            href="#"
-            class="block w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded-md"
-            >Dashboard</a
-          >
+          <a routerLink="/applicant/dashboard" class="justify-between">
+            Dashboard
+            <span class="badge badge-sm">📊</span>
+          </a>
         </li>
         <li>
-          <a
-            href="#"
-            class="block w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded-md"
-            >Settings</a
-          >
+          <a routerLink="/applicant/profile" class="justify-between">
+            My Profile @if (!isApplicantProfileComplete()) {
+            <span class="badge badge-warning badge-sm">!</span>
+            }
+          </a>
         </li>
         <li>
-          <a
-            href="#"
-            class="block w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded-md"
-            >Earnings</a
-          >
+          <a routerLink="/applicant/applications"> My Applications </a>
         </li>
         <li>
-          <a
-            href="#"
-            class="block w-full p-2 hover:bg-neutral-tertiary-medium text-fg-danger rounded-md"
-            >Sign out</a
-          >
+          <a routerLink="/applicant/saved-jobs"> Saved Jobs </a>
+        </li>
+        } @if (isEmployer()) {
+        <!-- Employer Menu -->
+        <li>
+          <a routerLink="/employer/dashboard" class="justify-between">
+            Dashboard
+            <span class="badge badge-sm">📊</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/employer/profile" class="justify-between">
+            Company Profile @if (!isEmployerProfileComplete()) {
+            <span class="badge badge-warning badge-sm">!</span>
+            }
+          </a>
+        </li>
+        <li>
+          <a routerLink="/employer/jobs/active"> My Jobs </a>
+        </li>
+        <li>
+          <a routerLink="/employer/applications"> Applications </a>
+        </li>
+        }
+
+        <li class="divider"></li>
+
+        <!-- Common Links -->
+        <li>
+          <a routerLink="/settings">
+            <span class="text-lg">⚙️</span>
+            Settings
+          </a>
+        </li>
+
+        <li>
+          <a (click)="logout($event)">
+            <span class="text-lg">🚪</span>
+            Logout
+          </a>
         </li>
       </ul>
     </div>
-
     }@else {
     <a routerLink="/sign-in">
       <button class="button">Sign In</button>
-      {{ isAuthenticated ? 'Logged In' : 'Guest' }}
     </a>
     }
   </div>

@@ -1,17 +1,14 @@
-import { Component, inject } from '@angular/core';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import {
   passwordMatchValidator,
   passwordStrengthValidator,
   atLeastOneRoleValidator,
 } from '../../shared/utils/helpers';
 import { AuthService } from '../../core/services/auth.service';
-import { RegisterRequest } from '../../core/models/user.model';
+import { RegisterRequest, Role } from '../../core/models/user.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-sign-up',
@@ -22,6 +19,9 @@ import { RegisterRequest } from '../../core/models/user.model';
 export class SignUp {
   private formBuilder = inject(FormBuilder);
   private authService = inject(AuthService);
+  private toastr = inject(ToastrService);
+  private router = inject(Router);
+  public isLoading = computed(()=>this.authService.loading());
 
   public signUpForm = this.formBuilder.group(
     {
@@ -76,26 +76,27 @@ export class SignUp {
     // Prepare data with roles array
     const formValue = this.signUpForm.value;
     const roles = [];
-    if (formValue.isApplicant) roles.push('APPLICANT');
-    if (formValue.isEmployer) roles.push('EMPLOYER');
+    if (formValue.isApplicant) roles.push(Role.APPLICANT);
+    if (formValue.isEmployer) roles.push(Role.EMPLOYER);
 
-    const signupData:RegisterRequest = {
+    const signupData: RegisterRequest = {
       username: formValue.username!,
       email: formValue.email!,
       password: formValue.password!,
       roles: roles,
     };
 
-    console.log(signupData);
     this.authService.register(signupData).subscribe({
       next: (response) => {
         console.log('Registration successful', response);
+        this.toastr.success(response.message ?? 'Sign up successful!', 'Success');
         this.signUpForm.reset();
+        this.router.navigate(['/sign-in']);
       },
-      error: (error) => {
-        console.error('Registration failed', error);
+      error: (err) => {
+        this.toastr.error(err.error.message, 'Error');
+        console.error('Registration failed', err);
       },
     });
-    // TODO: Call your API service here
   }
 }
