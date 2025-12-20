@@ -9,10 +9,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
-      if (error.status === 401) {
+      const isRefreshEndpoint = req.url.includes('/refresh');
+      if (error.status === 401 && !isRefreshEndpoint) {
         // Unauthorized - redirect to login
-        localStorage.removeItem('token');
-        router.navigate(['/auth/login']);
+        // router.navigate(['/sign-in']);
       }
 
       // Return error for handling in components
