@@ -14,6 +14,7 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { EmailService } from '../email/email.service';
+import { Role } from 'src/common/enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -87,6 +88,11 @@ export class AuthService {
     );
     if (existingUsername) {
       throw new ConflictException('Username already taken');
+    }
+
+    const validRoles = registerDto?.roles?.every(role => Object.values(Role).includes(role));
+    if (!validRoles) {
+      throw new BadRequestException('Invalid roles');
     }
 
     // Hash password
