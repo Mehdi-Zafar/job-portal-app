@@ -10,8 +10,8 @@ export class EmailService {
   constructor(private configService: ConfigService) {
     // Configure nodemailer transporter
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get('EMAIL_HOST', 'smtp.gmail.com'),
-      port: this.configService.get('EMAIL_PORT', 587),
+      host: this.configService.get('EMAIL_HOST'),
+      port: this.configService.get('EMAIL_PORT'),
       secure: false, // true for 465, false for other ports
       auth: {
         user: this.configService.get('EMAIL_USER'),
@@ -27,7 +27,7 @@ export class EmailService {
     const verificationUrl = `${this.configService.get('FRONTEND_URL')}/verify-email/${token}`;
 
     const mailOptions = {
-      from: this.configService.get('EMAIL_FROM', 'noreply@jobportal.com'),
+      from: this.configService.get('EMAIL_FROM'),
       to: email,
       subject: 'Verify Your Email - Job Portal',
       html: `
@@ -84,7 +84,7 @@ export class EmailService {
     const resetUrl = `${this.configService.get('FRONTEND_URL')}/reset-password/${token}`;
 
     const mailOptions = {
-      from: this.configService.get('EMAIL_FROM', 'noreply@jobportal.com'),
+      from: this.configService.get('EMAIL_FROM'),
       to: email,
       subject: 'Reset Your Password - Job Portal',
       html: `
@@ -141,7 +141,7 @@ export class EmailService {
    */
   async sendApplicationConfirmation(email: string, jobTitle: string) {
     const mailOptions = {
-      from: this.configService.get('EMAIL_FROM', 'noreply@jobportal.com'),
+      from: this.configService.get('EMAIL_FROM'),
       to: email,
       subject: `Application Received - ${jobTitle}`,
       html: `
@@ -198,7 +198,7 @@ export class EmailService {
     applicantName: string,
   ) {
     const mailOptions = {
-      from: this.configService.get('EMAIL_FROM', 'noreply@jobportal.com'),
+      from: this.configService.get('EMAIL_FROM'),
       to: email,
       subject: `New Application Received - ${jobTitle}`,
       html: `
