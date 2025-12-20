@@ -1,14 +1,15 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { Role } from '../models/user.model';
 
-export const roleGuard = (requiredRoles: string[]): CanActivateFn => {
+export const RoleGuard = (requiredRoles: Role[]): CanActivateFn => {
   return (route, state) => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
     if (!authService.isAuthenticated()) {
-      router.navigate(['/auth/login']);
+      router.navigate(['/sign-in']);
       return false;
     }
 
