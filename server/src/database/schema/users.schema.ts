@@ -2,9 +2,11 @@
 import { pgTable, uuid, varchar, boolean, timestamp, pgEnum,text } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { applicantProfiles, employerProfiles } from './profiles.schema';
+import { enumValues } from 'src/common/helpers/enum.helper';
+import { Role } from 'src/common/enums/role.enum';
 
 // Enum for user roles
-export const userRoleEnum = pgEnum('user_role', ['APPLICANT', 'EMPLOYER', 'ADMIN']);
+export const userRoleEnum = pgEnum('user_role', enumValues(Role));
 
 // Users table (authentication)
 export const users = pgTable('users', {

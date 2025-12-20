@@ -4,21 +4,14 @@ import { relations } from 'drizzle-orm';
 import { applicantProfiles } from './profiles.schema';
 import { jobPostings } from './jobs.schema';
 import { skills } from './skills.schema';
+import { enumValues } from 'src/common/helpers/enum.helper';
+import { ApplicationStatus } from 'src/common/enums/application-status.enum';
+import { ProficiencyLevel } from 'src/common/enums/proficiency-level.enum';
 
 // Enums
-export const applicationStatusEnum = pgEnum('application_status', [
-  'SUBMITTED',
-  'REVIEWED',
-  'SHORTLISTED',
-  'INTERVIEW_SCHEDULED',
-  'INTERVIEWED',
-  'OFFERED',
-  'ACCEPTED',
-  'REJECTED',
-  'WITHDRAWN',
-]);
+export const applicationStatusEnum = pgEnum('application_status', enumValues(ApplicationStatus));
 
-export const proficiencyLevelEnum = pgEnum('proficiency_level', ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']);
+export const proficiencyLevelEnum = pgEnum('proficiency_level', enumValues(ProficiencyLevel));
 
 // Applicant Skills (junction table)
 export const applicantSkills = pgTable('applicant_skills', {

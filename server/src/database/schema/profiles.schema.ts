@@ -4,10 +4,13 @@ import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
 import { applicantSkills, jobApplications } from './applications.schema';
 import { jobPostings } from './jobs.schema';
+import { enumValues } from 'src/common/helpers/enum.helper';
+import { Gender } from 'src/common/enums/gender.enum';
+import { ExperienceLevel } from 'src/common/enums';
 
 // Enums
-export const genderEnum = pgEnum('gender', ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']);
-export const experienceLevelEnum = pgEnum('experience_level', ['ENTRY', 'MID', 'SENIOR', 'LEAD', 'EXECUTIVE']);
+export const genderEnum = pgEnum('gender', enumValues(Gender));
+export const experienceLevelEnum = pgEnum('experience_level', enumValues(ExperienceLevel));
 
 // Applicant Profiles
 export const applicantProfiles = pgTable('applicant_profiles', {
