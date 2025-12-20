@@ -1,10 +1,11 @@
 // src/app/core/services/auth.service.ts
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, throwError, of, map } from 'rxjs';
+import { Observable, tap, catchError, throwError, of, map, finalize } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { User, LoginResponse, RegisterRequest } from '../models/user.model';
+import { User, LoginResponse, RegisterRequest, Role } from '../models/user.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ import { User, LoginResponse, RegisterRequest } from '../models/user.model';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private toastr = inject(ToastrService);
   private apiUrl = `${environment.apiUrl}/auth`;
 
   // Signals
@@ -20,12 +22,14 @@ export class AuthService {
   private loadingSignal = signal<boolean>(false);
   private errorSignal = signal<string | null>(null);
   private initializingSignal = signal<boolean>(false);
+  private isRefreshingSignal = signal<boolean>(false); // Track if refresh is in progress
 
   // Public readonly signals
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
   readonly initializing = this.initializingSignal.asReadonly();
+  readonly isRefreshing = this.isRefreshingSignal.asReadonly();
 
   // Computed signals
   readonly isAuthenticated = computed(() => {
@@ -34,27 +38,31 @@ export class AuthService {
     return !!user && !!token;
   });
 
+  readonly isEmailVerified = computed(() => {
+    return this.currentUser()?.emailVerified ?? false;
+  });
+
+  readonly needsEmailVerification = computed(() => {
+    return this.isAuthenticated() && !this.isEmailVerified();
+  });
+
   readonly userRoles = computed(() => this.currentUser()?.roles ?? []);
-  readonly isApplicant = computed(() => this.userRoles().includes('APPLICANT'));
-  readonly isEmployer = computed(() => this.userRoles().includes('EMPLOYER'));
-  readonly isAdmin = computed(() => this.userRoles().includes('ADMIN'));
+  readonly isApplicant = computed(() => this.userRoles().includes(Role.APPLICANT));
+  readonly isEmployer = computed(() => this.userRoles().includes(Role.EMPLOYER));
+  readonly isAdmin = computed(() => this.userRoles().includes(Role.ADMIN));
 
   readonly applicantProfile = computed(() => this.currentUser()?.applicantProfile);
   readonly employerProfile = computed(() => this.currentUser()?.employerProfile);
   readonly isApplicantProfileComplete = computed(
     () => this.applicantProfile()?.isComplete ?? false
   );
-  readonly isEmployerProfileComplete = computed(() => this.employerProfile()?.isComplete ?? false);
-
-  private refreshTokenTimeout?: any;
-
-  constructor() {
-    // Memory-only approach - no localStorage
-  }
+  readonly isEmployerProfileComplete = computed(
+    () => this.employerProfile()?.isComplete ?? false
+  );
 
   /**
    * Initialize auth state from refresh token cookie
-   * Called by provideAppInitializer
+   * Called by APP_INITIALIZER
    */
   initializeFromRefreshToken(): Observable<void> {
     this.initializingSignal.set(true);
@@ -67,19 +75,18 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
-          debugger;
           this.accessTokenSignal.set(response.accessToken);
           this.currentUserSignal.set(response.user);
-          this.startRefreshTokenTimer();
           console.log('✅ Auth initialized from refresh token');
         }),
         catchError((error) => {
           console.log('❌ No valid refresh token found');
-          // Return empty observable to continue app initialization
+          this.accessTokenSignal.set(null);
+          this.currentUserSignal.set(null);
           return of(undefined);
         }),
-        map(() => undefined), // Convert to Observable<void>
-        tap(() => {
+        map(() => undefined),
+        finalize(() => {
           this.initializingSignal.set(false);
         })
       );
@@ -93,12 +100,15 @@ export class AuthService {
     this.errorSignal.set(null);
 
     return this.http
-      .post<LoginResponse>(`${this.apiUrl}/login`, { email, password }, { withCredentials: true })
+      .post<LoginResponse>(
+        `${this.apiUrl}/login`,
+        { email, password },
+        { withCredentials: true }
+      )
       .pipe(
         tap((response) => {
           this.accessTokenSignal.set(response.accessToken);
           this.currentUserSignal.set(response.user);
-          this.startRefreshTokenTimer();
           this.loadingSignal.set(false);
         }),
         catchError((error) => {
@@ -111,19 +121,40 @@ export class AuthService {
 
   /**
    * Refresh token
+   * Returns Observable<string> with the new access token
    */
-  refreshToken(): Observable<{ accessToken: string }> {
+  refreshToken(): Observable<string> {
+    // If already refreshing, wait for the current refresh to complete
+    if (this.isRefreshingSignal()) {
+      console.log('⏳ Refresh already in progress, waiting...');
+    }
+
+    this.isRefreshingSignal.set(true);
+
     return this.http
-      .post<{ accessToken: string }>(`${this.apiUrl}/refresh`, {}, { withCredentials: true })
+      .post<{ accessToken: string; user?: User }>(
+        `${this.apiUrl}/refresh`,
+        {},
+        { withCredentials: true }
+      )
       .pipe(
         tap((response) => {
           this.accessTokenSignal.set(response.accessToken);
-          this.startRefreshTokenTimer();
+          if (response.user) {
+            this.currentUserSignal.set(response.user);
+          }
+          console.log('✅ Token refreshed successfully');
         }),
+        map((response) => response.accessToken),
         catchError((error) => {
-          // If refresh fails, logout
-          this.logout();
+          console.error('❌ Token refresh failed:', error.status);
+          // Clear auth state and redirect to login
+          this.clearAuthState();
+          this.router.navigate(['/sign-in']);
           return throwError(() => error);
+        }),
+        finalize(() => {
+          this.isRefreshingSignal.set(false);
         })
       );
   }
@@ -134,23 +165,30 @@ export class AuthService {
   logout(): void {
     this.loadingSignal.set(true);
 
-    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({
-      complete: () => {
-        this.stopRefreshTokenTimer();
-        this.accessTokenSignal.set(null);
-        this.currentUserSignal.set(null);
-        this.loadingSignal.set(false);
-        this.router.navigate(['/auth/login']);
-      },
-      error: () => {
-        // Force logout even if API call fails
-        this.stopRefreshTokenTimer();
-        this.accessTokenSignal.set(null);
-        this.currentUserSignal.set(null);
-        this.loadingSignal.set(false);
-        this.router.navigate(['/auth/login']);
-      },
-    });
+    this.http
+      .post(`${this.apiUrl}/logout`, {}, { withCredentials: true })
+      .subscribe({
+        next: () => {
+          this.clearAuthState();
+          this.toastr.success('Logged out successfully!', 'Success');
+          this.router.navigate(['/sign-in']);
+        },
+        error: (err) => {
+          // Force logout even if API call fails
+          this.clearAuthState();
+          this.toastr.error(err.error.message, 'Error');
+          this.router.navigate(['/sign-in']);
+        },
+      });
+  }
+
+  /**
+   * Clear all auth state
+   */
+  private clearAuthState(): void {
+    this.accessTokenSignal.set(null);
+    this.currentUserSignal.set(null);
+    this.loadingSignal.set(false);
   }
 
   /**
@@ -227,42 +265,7 @@ export class AuthService {
   /**
    * Check if user has specific role
    */
-  hasRole(role: string): boolean {
+  hasRole(role: Role): boolean {
     return this.userRoles().includes(role);
-  }
-
-  /**
-   * Start refresh token timer
-   */
-  private startRefreshTokenTimer(): void {
-    const token = this.getToken();
-    if (!token) return;
-
-    try {
-      const jwtToken = JSON.parse(atob(token.split('.')[1]));
-      const expires = new Date(jwtToken.exp * 1000);
-      const timeout = expires.getTime() - Date.now() - 60 * 1000;
-
-      if (timeout > 0) {
-        this.refreshTokenTimeout = setTimeout(() => {
-          console.log('🔄 Auto-refreshing token...');
-          this.refreshToken().subscribe({
-            next: () => console.log('✅ Token refreshed successfully'),
-            error: (err) => console.error('❌ Token refresh failed:', err),
-          });
-        }, timeout);
-      }
-    } catch (error) {
-      console.error('Error parsing JWT token:', error);
-    }
-  }
-
-  /**
-   * Stop refresh token timer
-   */
-  private stopRefreshTokenTimer(): void {
-    if (this.refreshTokenTimeout) {
-      clearTimeout(this.refreshTokenTimeout);
-    }
   }
 }
