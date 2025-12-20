@@ -1,5 +1,6 @@
 // src/auth/dto/register.dto.ts
-import { IsEmail, IsString, MinLength, IsArray, ArrayMinSize } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsArray, ArrayMinSize, IsEnum } from 'class-validator';
+import { Role } from 'src/common/enums/role.enum';
 
 export class RegisterDto {
   @IsString()
@@ -14,6 +15,6 @@ export class RegisterDto {
   password: string;
 
   @IsArray()
-  @ArrayMinSize(1)
-  roles: string[];
+  @IsEnum(Role, { each: true })
+  roles: Role[];
 }

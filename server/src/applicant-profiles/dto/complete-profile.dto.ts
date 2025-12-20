@@ -10,6 +10,8 @@ import {
   IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Gender } from 'src/common/enums/gender.enum';
+import { ExperienceLevel } from 'src/common/enums';
 
 class SkillDto {
   @IsString()
@@ -40,8 +42,8 @@ export class CompleteProfileDto {
   currentLocation: string;
 
   @IsOptional()
-  @IsEnum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'])
-  gender?: string;
+  @IsEnum(Gender)
+  gender?: Gender;
 
   // Step 2: Professional Information
   @IsString()
@@ -54,8 +56,8 @@ export class CompleteProfileDto {
   professionalSummary: string;
 
   @IsOptional()
-  @IsEnum(['ENTRY', 'MID', 'SENIOR', 'LEAD', 'EXECUTIVE'])
-  experienceLevel?: string;
+  @IsEnum(ExperienceLevel)
+  experienceLevel?: ExperienceLevel;
 
   @IsOptional()
   @IsBoolean()
